@@ -91,14 +91,20 @@ export async function fetchLatestTelemetry() {
 }
 
 /**
- * Fetch race results for a given season from Ergast API
+ * Fetch race results for a given season from Ergast API (via CORS proxy)
  */
 export async function fetchRaceResults(year: number): Promise<any[]> {
   try {
-    const url = `https://ergast.com/api/f1/${year}/results.json`;
+    // Use CORS proxy to bypass browser restrictions
+    const proxyUrl = `https://api.allorigins.win/raw?url=`;
+    const ergastUrl = `https://ergast.com/api/f1/${year}/results.json`;
+    const url = proxyUrl + encodeURIComponent(ergastUrl);
+    
+    console.log(`Fetching ${year} results from:`, url);
+    
     const res = await fetch(url);
     if (!res.ok) {
-      console.error(`Ergast API returned ${res.status}`);
+      console.error(`CORS Proxy returned ${res.status}`);
       return [];
     }
     const data = await res.json();
@@ -107,7 +113,7 @@ export async function fetchRaceResults(year: number): Promise<any[]> {
     const races = data?.MRData?.RaceTable?.Races;
     
     if (!Array.isArray(races)) {
-      console.warn(`No races found in Ergast response for year ${year}`);
+      console.warn(`No races found for year ${year}`);
       return [];
     }
     
