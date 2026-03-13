@@ -241,7 +241,7 @@ export default function LapTimeChart({ year, country, driverNumbers = [] }: LapT
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 5, strokeWidth: 0 }}
-              connectNulls={false}
+              connectNulls={true}
             />
           ))}
         </LineChart>
