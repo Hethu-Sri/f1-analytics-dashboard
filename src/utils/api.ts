@@ -91,20 +91,18 @@ export async function fetchLatestTelemetry() {
 }
 
 /**
- * Fetch race results for a given season from Ergast API (via CORS proxy)
+ * Fetch race results for a given season from Ergast API
  */
 export async function fetchRaceResults(year: number): Promise<any[]> {
   try {
-    // Use CORS proxy to bypass browser restrictions
-    const proxyUrl = `https://api.allorigins.win/raw?url=`;
-    const ergastUrl = `https://ergast.com/api/f1/${year}/results.json`;
-    const url = proxyUrl + encodeURIComponent(ergastUrl);
+    // Use Vite proxy for development, direct URL for production
+    const url = `/api/ergast/${year}/results.json`;
     
     console.log(`Fetching ${year} results from:`, url);
     
     const res = await fetch(url);
     if (!res.ok) {
-      console.error(`CORS Proxy returned ${res.status}`);
+      console.error(`API returned ${res.status}`);
       return [];
     }
     const data = await res.json();
