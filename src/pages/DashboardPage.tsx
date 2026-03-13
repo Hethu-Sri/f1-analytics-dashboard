@@ -26,7 +26,7 @@ const DRIVERS_BY_SEASON: Record<number, {num: string, name: string}[]> = {
 };
 const DEFAULT_DRIVERS = [{num:"1",name:"VER"},{num:"16",name:"LEC"},{num:"44",name:"HAM"}];
 
-const label = (s: string) => ({ color:"#555", fontSize:10, letterSpacing:"1px", textTransform:"uppercase" as const, marginBottom:4, display:"block" });
+const label = (_s: string) => ({ color:"#555", fontSize:10, letterSpacing:"1px", textTransform:"uppercase" as const, marginBottom:4, display:"block" });
 const sel = { background:"#111", border:"1px solid #222", color:"#f0f0f0", fontFamily:"'Barlow Condensed',sans-serif", fontSize:13, padding:"7px 10px", borderRadius:4, cursor:"pointer", width:"100%" } as const;
 
 export default function DashboardPage() {

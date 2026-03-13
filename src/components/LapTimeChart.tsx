@@ -4,7 +4,6 @@ import {
   LineChart, Line, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
-import type { TooltipProps } from "recharts";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -72,9 +71,14 @@ async function fetchDriverName(sessionKey: number, driverNumber: string): Promis
 
 // ─── Tooltip ──────────────────────────────────────────────────────────────────
 
-function CustomTooltip({
-  active, payload, label, drivers,
-}: TooltipProps<number, string> & { drivers: DriverMeta[] }) {
+type CustomTooltipProps = {
+  active?: boolean;
+  payload?: Array<{ dataKey: string; value: number | null; color?: string }>;
+  label?: string | number;
+  drivers: DriverMeta[];
+};
+
+function CustomTooltip({ active, payload, label, drivers }: CustomTooltipProps) {
   if (!active || !payload?.length) return null;
   return (
     <div style={{

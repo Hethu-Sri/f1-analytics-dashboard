@@ -47,8 +47,6 @@ const COMPOUND_TEXT: Record<string, string> = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
-
 async function fetchSessionKey(year: number, country: string): Promise<number> {
   const url = `${BASE}/sessions?year=${year}&country_name=${encodeURIComponent(country)}&session_name=Race`;
   const data = await rateLimitedFetch(url);
@@ -156,7 +154,6 @@ export default function TireStrategyChart({ year, country }: TireStrategyChartPr
   const ROW_H = 28;
   const LABEL_W = 140;
   const BAR_AREA = 820;
-  const CHART_H = rows.length * ROW_H + 40;
 
   return (
     <div style={{ fontFamily: "sans-serif", overflowX: "auto" }}>

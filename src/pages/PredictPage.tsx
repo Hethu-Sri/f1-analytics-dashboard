@@ -14,8 +14,6 @@ interface DriverPrediction {
   recentForm: number[]; // last 5 race finishes
 }
 
-const BASE = "https://api.openf1.org/v1";
-
 const TEAM_COLORS: Record<string, string> = {
   "Red Bull Racing": "#3671C6",
   "Ferrari": "#E8002D",
@@ -31,7 +29,6 @@ const TEAM_COLORS: Record<string, string> = {
 
 // Points by finishing position
 const PTS = [25,18,15,12,10,8,6,4,2,1,0,0,0,0,0,0,0,0,0,0];
-const RACES_IN_SEASON = 24;
 
 async function fetchStandings() {
   // Use Jolpica (Ergast replacement) for current standings
@@ -83,7 +80,11 @@ export default function PredictPage() {
             // Project: avg points per race * races left + current
             const avgPts = form.map((p: number) => PTS[p-1] ?? 0).reduce((a:number,b:number)=>a+b,0) / form.length;
             const projected = Math.round(currentPts + avgPts * racesLeft);
-            const trend = form[form.length-1] < form[0] ? "up" : form[form.length-1] > form[0] ? "down" : "stable";
+            const trend = (form[form.length-1] < form[0]
+              ? "up"
+              : form[form.length-1] > form[0]
+              ? "down"
+              : "stable") as DriverPrediction["trend"];
             const team = s.Constructors[0]?.name ?? "Unknown";
             return {
               number: s.Driver.permanentNumber ?? "?",
@@ -94,10 +95,9 @@ export default function PredictPage() {
               projectedPoints: projected,
               trend,
               recentForm: form,
-              winProbability: 0,
-            };
+            } as Omit<DriverPrediction, "winProbability">;
           })
-        );
+        ) as Omit<DriverPrediction, "winProbability">[];
 
         const withProb = computeWinProbabilities(withForm);
         setDrivers(withProb.sort((a,b) => b.winProbability - a.winProbability));
