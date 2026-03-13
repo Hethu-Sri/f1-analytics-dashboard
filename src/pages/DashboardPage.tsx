@@ -30,6 +30,33 @@ const DRIVERS_BY_SEASON: Record<number, {num: string, name: string}[]> = {
 };
 const DEFAULT_DRIVERS = [{num:"1",name:"VER"},{num:"16",name:"LEC"},{num:"44",name:"HAM"}];
 
+// Race dates for 2026
+const RACE_DATES: Record<string, string> = {
+  "Bahrain": "2026-03-22",
+  "Saudi Arabia": "2026-03-29",
+  "Australia": "2026-04-12",
+  "Japan": "2026-04-26",
+  "China": "2026-05-10",
+  "Miami": "2026-05-24",
+  "Monaco": "2026-05-31",
+  "Canada": "2026-06-14",
+  "Spain": "2026-06-28",
+  "Austria": "2026-07-12",
+  "United Kingdom": "2026-07-19",
+  "Hungary": "2026-08-02",
+  "Belgium": "2026-08-30",
+  "Netherlands": "2026-09-06",
+  "Italy": "2026-09-20",
+  "Azerbaijan": "2026-10-04",
+  "Singapore": "2026-10-18",
+  "United States": "2026-11-01",
+  "Mexico": "2026-11-08",
+  "Brazil": "2026-11-22",
+  "Las Vegas": "2026-12-06",
+  "Qatar": "2026-12-13",
+  "Abu Dhabi": "2026-12-20",
+};
+
 const label = (_s: string) => ({ color:"#555", fontSize:10, letterSpacing:"1px", textTransform:"uppercase" as const, marginBottom:4, display:"block" });
 const sel = { background:"#111", border:"1px solid #222", color:"#f0f0f0", fontFamily:"'Barlow Condensed',sans-serif", fontSize:13, padding:"7px 10px", borderRadius:4, cursor:"pointer", width:"100%" } as const;
 
@@ -42,11 +69,35 @@ export default function DashboardPage() {
   const [loaded, setLoaded]   = useState(false);
   const [loadKey, setLoadKey] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [futureRace, setFutureRace] = useState(false);
 
   const drivers = DRIVERS_BY_SEASON[season] ?? DEFAULT_DRIVERS;
   const races   = RACES[season] ?? RACES[2024];
 
+  // Validate d1 and d2 are in drivers list, reset if not found
+  const validD1 = drivers.some(d => d.num === d1) ? d1 : drivers[0]?.num ?? "1";
+  const validD2 = drivers.some(d => d.num === d2 && d.num !== validD1) ? d2 : (drivers.find(d => d.num !== validD1)?.num ?? drivers[1]?.num ?? "16");
+
+  // Calculate days until race for 2026
+  const getRaceCountdown = (raceName: string) => {
+    if (season !== 2026) return null;
+    const dateStr = RACE_DATES[raceName];
+    if (!dateStr) return null;
+    const raceDate = new Date(dateStr);
+    const today = new Date();
+    const daysUntil = Math.ceil((raceDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    return daysUntil > 0 ? daysUntil : null;
+  };
+
   function handleLoad() {
+    const daysUntil = getRaceCountdown(country);
+    if (daysUntil !== null && daysUntil > 0) {
+      setFutureRace(true);
+      setLoaded(true);
+      setLoading(false);
+      return;
+    }
+    setFutureRace(false);
     setLoaded(false);
     setLoading(true);
     setLoadKey(k => k + 1);
@@ -88,14 +139,25 @@ export default function DashboardPage() {
         </div>
         <div style={{flex:"0 0 130px"}}>
           <span style={label("driver 1")}>Driver 1</span>
-          <select style={sel} value={d1} onChange={e=>setD1(e.target.value)}>
+          <select style={sel} value={validD1} onChange={e=>{
+            const newD1 = e.target.value;
+            setD1(newD1);
+            // Auto-update d2 if it's the same as d1
+            if (d2 === newD1) {
+              const altDriver = drivers.find(d => d.num !== newD1)?.num ?? "16";
+              setD2(altDriver);
+            }
+          }}>
             {drivers.map(d=><option key={d.num} value={d.num}>#{d.num} {d.name}</option>)}
           </select>
         </div>
         <div style={{flex:"0 0 130px"}}>
           <span style={label("driver 2")}>Driver 2</span>
-          <select style={sel} value={d2} onChange={e=>setD2(e.target.value)}>
-            {drivers.filter(d=>d.num!==d1).map(d=><option key={d.num} value={d.num}>#{d.num} {d.name}</option>)}
+          <select style={sel} value={validD2} onChange={e=>{
+            const newD2 = e.target.value;
+            setD2(newD2);
+          }}>
+            {drivers.filter(d=>d.num!==validD1).map(d=><option key={d.num} value={d.num}>#{d.num} {d.name}</option>)}
           </select>
         </div>
         <button
@@ -119,14 +181,14 @@ export default function DashboardPage() {
       )}
 
       {/* Charts */}
-      {loaded && (
+      {loaded && !futureRace && (
         <motion.div key={loadKey} initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.5}}>
 
           {/* Lap times */}
           <div style={{ marginBottom:40 }}>
             <SectionHeader title="Lap Times" sub="Head-to-head race pace" />
             <div style={{ background:"#0f0f0f", border:"1px solid #1a1a1a", borderRadius:8, padding:"20px 16px" }}>
-              <LapTimeChart year={season} country={country} driverNumbers={[d1,d2]} />
+              <LapTimeChart year={season} country={country} driverNumbers={[validD1,validD2]} />
             </div>
           </div>
 
@@ -138,6 +200,35 @@ export default function DashboardPage() {
             </div>
           </div>
 
+        </motion.div>
+      )}
+
+      {/* Future race message */}
+      {loaded && futureRace && (
+        <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.5}}>
+          <div style={{
+            background:"#0f0f0f", border:"2px dashed #E10600", borderRadius:8, padding:"60px 40px",
+            textAlign:"center"
+          }}>
+            <div style={{
+              fontFamily:"'Barlow Condensed',sans-serif", fontSize:32, fontWeight:900,
+              letterSpacing:2, textTransform:"uppercase", color:"#E10600", marginBottom:12
+            }}>
+              🏁 Future Race
+            </div>
+            <p style={{
+              fontFamily:"'Share Tech Mono',monospace", fontSize:12, color:"#aaa",
+              letterSpacing:1, marginBottom:8
+            }}>
+              Data will be available after <strong>{country} GP</strong> takes place
+            </p>
+            <p style={{
+              fontFamily:"'Share Tech Mono',monospace", fontSize:11, color:"#666",
+              letterSpacing:1
+            }}>
+              Race scheduled: {RACE_DATES[country] ? new Date(RACE_DATES[country]).toLocaleDateString("en-US", {year:"numeric", month:"long", day:"numeric"}) : "TBA"}
+            </p>
+          </div>
         </motion.div>
       )}
 

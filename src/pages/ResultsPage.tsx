@@ -29,14 +29,53 @@ export default function ResultsPage() {
       setError(null);
       try {
         const data = await fetchRaceResults(year);
-        if (!Array.isArray(data)) {
-          setError("No results found for this year");
+        console.log(`Received ${data?.length || 0} races from API for ${year}`);
+        
+        if (!Array.isArray(data) || data.length === 0) {
+          setError(`No results found for ${year}. Data may not be available.`);
           setRaces([]);
           return;
         }
-        setRaces(data);
+        
+        // Transform races safely with error handling
+        const processedRaces: RaceResult[] = [];
+        for (const race of data) {
+          try {
+            processedRaces.push({
+              raceId: String(race.round || race.raceName || "unknown"),
+              raceName: race.raceName || "Unknown Race",
+              date: race.date || "TBA",
+              results: Array.isArray(race.Results) ? race.Results.map((result: any) => ({
+                position: String(result.position || "?"),
+                points: String(result.points || "0"),
+                driver: {
+                  driverId: result.Driver?.driverId || "unknown",
+                  code: result.Driver?.code || "?",
+                  givenName: result.Driver?.givenName || "",
+                  familyName: result.Driver?.familyName || "",
+                },
+                constructor: {
+                  name: result.Constructor?.name || "Unknown",
+                },
+              })) : [],
+            });
+          } catch (err) {
+            console.warn(`Error processing race at index:`, err);
+          }
+        }
+        
+        console.log(`Processed ${processedRaces.length} valid races for display`);
+        
+        if (processedRaces.length === 0) {
+          setError(`No valid race data found for ${year}.`);
+          setRaces([]);
+          return;
+        }
+        
+        setRaces(processedRaces);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load results");
+        console.error(`Error in Results page:`, err);
+        setError(`Error loading ${year} results: ` + (err instanceof Error ? err.message : "Unknown error"));
         setRaces([]);
       } finally {
         setLoading(false);
@@ -161,10 +200,22 @@ export default function ResultsPage() {
       )}
 
       {!loading && !error && races.length === 0 && (
-        <div style={{ textAlign: "center", padding: "80px 0", color: "#2a2a2a" }}>
-          <div style={{ fontFamily: "'Barlow Condensed',sans-serif", fontSize: 18, letterSpacing: 3, textTransform: "uppercase" }}>
-            No results available for {year}
+        <div style={{
+          background: "#0f0f0f", border: "2px dashed #1a1a1a", borderRadius: 8, padding: "60px 40px",
+          textAlign: "center"
+        }}>
+          <div style={{
+            fontFamily: "'Barlow Condensed',sans-serif", fontSize: 28, fontWeight: 700,
+            letterSpacing: 2, textTransform: "uppercase", color: "#aaa", marginBottom: 12
+          }}>
+            No Results Available
           </div>
+          <p style={{
+            fontFamily: "'Share Tech Mono',monospace", fontSize: 11, color: "#555",
+            letterSpacing: 1
+          }}>
+            {year >= 2026 ? "Data unavailable for this future season" : `No data found for ${year}`}
+          </p>
         </div>
       )}
     </div>

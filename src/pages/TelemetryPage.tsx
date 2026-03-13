@@ -41,31 +41,43 @@ export default function TelemetryPage() {
         // Group by driver and get latest entry
         const driverMap = new Map<number, TelemetryEntry>();
         data.forEach((entry: TelemetryEntry) => {
-          if (!driverMap.has(entry.driver_number)) {
-            driverMap.set(entry.driver_number, entry);
-          } else {
-            const existing = driverMap.get(entry.driver_number)!;
-            // Keep the entry with highest timestamp (latest)
-            if ((entry as any).date > (existing as any).date) {
+          try {
+            if (!entry || typeof entry.driver_number !== "number") return;
+            if (!driverMap.has(entry.driver_number)) {
               driverMap.set(entry.driver_number, entry);
+            } else {
+              const existing = driverMap.get(entry.driver_number)!;
+              // Keep the entry with highest timestamp (latest)
+              if ((entry as any).date > (existing as any).date) {
+                driverMap.set(entry.driver_number, entry);
+              }
             }
+          } catch {
+            // Skip corrupted entries
           }
         });
 
+        if (driverMap.size === 0) {
+          setError("No valid telemetry data found.");
+          setLoading(false);
+          return;
+        }
+
         const telemetry = Array.from(driverMap.values())
-          .sort((a, b) => b.speed - a.speed)
+          .filter(d => typeof d.speed === "number" && typeof d.throttle === "number" && typeof d.brake === "number")
+          .sort((a, b) => (b.speed || 0) - (a.speed || 0))
           .map(d => ({
             number: d.driver_number,
-            speed: Math.round(d.speed),
-            throttle: Math.round(d.throttle * 100),
-            brake: Math.round(d.brake * 100),
-            drs: d.drs,
+            speed: Math.round(d.speed || 0),
+            throttle: Math.round((d.throttle || 0) * 100),
+            brake: Math.round((d.brake || 0) * 100),
+            drs: d.drs || 0,
           }));
 
         setDrivers(telemetry);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load telemetry");
+        setError("Failed to load telemetry. " + (err instanceof Error ? err.message : "Unknown error"));
       } finally {
         setLoading(false);
       }

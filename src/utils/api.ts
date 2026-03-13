@@ -97,11 +97,31 @@ export async function fetchRaceResults(year: number): Promise<any[]> {
   try {
     const url = `https://ergast.com/api/f1/${year}/results.json`;
     const res = await fetch(url);
-    if (!res.ok) return [];
+    if (!res.ok) {
+      console.error(`Ergast API returned ${res.status}`);
+      return [];
+    }
     const data = await res.json();
-    const races = data?.MRData?.RaceTable?.Races ?? [];
-    return races;
-  } catch {
+    
+    // Ergast structure: { MRData: { RaceTable: { Races: [...] } } }
+    const races = data?.MRData?.RaceTable?.Races;
+    
+    if (!Array.isArray(races)) {
+      console.warn(`No races found in Ergast response for year ${year}`);
+      return [];
+    }
+    
+    console.log(`✓ Fetched ${races.length} total races for ${year}`);
+    
+    // Return only races that have results (race completed)
+    const completedRaces = races.filter((race: any) => 
+      race?.Results && Array.isArray(race.Results) && race.Results.length > 0
+    );
+    
+    console.log(`✓ ${completedRaces.length} races with results`);
+    return completedRaces;
+  } catch (err) {
+    console.error(`fetchRaceResults error for year ${year}:`, err);
     return [];
   }
 }
