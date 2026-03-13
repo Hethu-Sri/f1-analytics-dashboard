@@ -4,9 +4,11 @@ import LapTimeChart from "../components/LapTimeChart";
 import TireStrategyChart from "../components/TireStrategyChart";
 import LightsOutLoader from "../components/LightsOutLoader";
 
-const SEASONS = [2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015];
+const SEASONS = [2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015];
 
 const RACES: Record<number, string[]> = {
+  2026: ["Bahrain","Saudi Arabia","Australia","Japan","China","Miami","Monaco","Canada","Spain","Austria","United Kingdom","Hungary","Belgium","Netherlands","Italy","Azerbaijan","Singapore","United States","Mexico","Brazil","Las Vegas","Qatar","Abu Dhabi"],
+  2025: ["Bahrain","Saudi Arabia","Australia","Japan","China","Miami","Monaco","Canada","Spain","Austria","United Kingdom","Hungary","Belgium","Netherlands","Italy","Azerbaijan","Singapore","United States","Mexico","Brazil","Las Vegas","Qatar","Abu Dhabi"],
   2024: ["Bahrain","Saudi Arabia","Australia","Japan","China","Miami","Monaco","Canada","Spain","Austria","United Kingdom","Hungary","Belgium","Netherlands","Italy","Azerbaijan","Singapore","United States","Mexico","Brazil","Las Vegas","Qatar","Abu Dhabi"],
   2023: ["Bahrain","Saudi Arabia","Australia","Azerbaijan","Miami","Monaco","Spain","Canada","Austria","United Kingdom","Hungary","Belgium","Netherlands","Italy","Singapore","Japan","Qatar","United States","Mexico","Brazil","Las Vegas","Abu Dhabi"],
   2022: ["Bahrain","Saudi Arabia","Australia","Emilia Romagna","Miami","Spain","Monaco","Azerbaijan","Canada","United Kingdom","Austria","France","Hungary","Belgium","Netherlands","Italy","Singapore","Japan","United States","Mexico","Brazil","Abu Dhabi"],
@@ -20,6 +22,8 @@ for (const yr of [2019,2018,2017,2016,2015]) {
 }
 
 const DRIVERS_BY_SEASON: Record<number, {num: string, name: string}[]> = {
+  2026: [{num:"1",name:"Verstappen"},{num:"11",name:"Pérez"},{num:"16",name:"Leclerc"},{num:"55",name:"Sainz"},{num:"44",name:"Hamilton"},{num:"63",name:"Russell"},{num:"4",name:"Norris"},{num:"81",name:"Piastri"}],
+  2025: [{num:"1",name:"Verstappen"},{num:"11",name:"Pérez"},{num:"16",name:"Leclerc"},{num:"55",name:"Sainz"},{num:"44",name:"Hamilton"},{num:"63",name:"Russell"},{num:"4",name:"Norris"},{num:"81",name:"Piastri"}],
   2024: [{num:"1",name:"Verstappen"},{num:"11",name:"Pérez"},{num:"16",name:"Leclerc"},{num:"55",name:"Sainz"},{num:"44",name:"Hamilton"},{num:"63",name:"Russell"},{num:"4",name:"Norris"},{num:"81",name:"Piastri"}],
   2023: [{num:"1",name:"Verstappen"},{num:"11",name:"Pérez"},{num:"16",name:"Leclerc"},{num:"55",name:"Sainz"},{num:"44",name:"Hamilton"},{num:"63",name:"Russell"},{num:"14",name:"Alonso"}],
   2022: [{num:"1",name:"Verstappen"},{num:"11",name:"Pérez"},{num:"16",name:"Leclerc"},{num:"55",name:"Sainz"},{num:"44",name:"Hamilton"},{num:"63",name:"Russell"}],
@@ -29,8 +33,9 @@ const DEFAULT_DRIVERS = [{num:"1",name:"VER"},{num:"16",name:"LEC"},{num:"44",na
 const label = (_s: string) => ({ color:"#555", fontSize:10, letterSpacing:"1px", textTransform:"uppercase" as const, marginBottom:4, display:"block" });
 const sel = { background:"#111", border:"1px solid #222", color:"#f0f0f0", fontFamily:"'Barlow Condensed',sans-serif", fontSize:13, padding:"7px 10px", borderRadius:4, cursor:"pointer", width:"100%" } as const;
 
+
 export default function DashboardPage() {
-  const [season, setSeason]   = useState(2024);
+  const [season, setSeason]   = useState(2026);
   const [country, setCountry] = useState("Bahrain");
   const [d1, setD1] = useState("1");
   const [d2, setD2] = useState("16");
@@ -57,7 +62,7 @@ export default function DashboardPage() {
             Race <span style={{color:"#E10600"}}>Analysis</span>
           </h1>
           <span style={{ fontFamily:"'Share Tech Mono',monospace", fontSize:11, color:"#444", letterSpacing:2 }}>
-            10 SEASONS · LIVE DATA
+            {SEASONS.length} SEASONS · LIVE DATA
           </span>
         </div>
         <div style={{ height:2, background:"#E10600", width:60, marginBottom:32 }} />

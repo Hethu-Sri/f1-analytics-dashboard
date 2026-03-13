@@ -3,7 +3,9 @@ import { motion } from "framer-motion";
 
 const NAV_ITEMS = [
   { to: "/",           label: "Live" },
-  { to: "/history",    label: "Analysis" },
+  { to: "/dashboard",  label: "Dashboard" },
+  { to: "/telemetry",  label: "Telemetry" },
+  { to: "/results",    label: "Results" },
   { to: "/champions",  label: "Champions" },
   { to: "/predict",    label: "Predict" },
 ];
