@@ -6,7 +6,8 @@ import DashboardPage from "./pages/DashboardPage";
 import ChampionsPage from "./pages/ChampionsPage";
 import PredictPage from "./pages/PredictPage";
 import TelemetryPage from "./pages/TelemetryPage";
-import ResultsPage from "./pages/ResultsPage";
+// import ResultsPage from "./pages/ResultsPage";
+import StandingsPage from "./pages/StandingsPage";
 import "./index.css";
 
 function AppRoutes() {
@@ -24,7 +25,8 @@ function AppRoutes() {
           <Route path="/champions"  element={<ChampionsPage />} />
           <Route path="/predict"    element={<PredictPage />} />
           <Route path="/telemetry"  element={<TelemetryPage />} />
-          <Route path="/results"    element={<ResultsPage />} />
+          {/* <Route path="/results"    element={<ResultsPage />} /> */}
+          <Route path="/standings"  element={<StandingsPage />} />
           <Route path="*"           element={<DashboardPage />} />
         </Routes>
       </AnimatePresence>

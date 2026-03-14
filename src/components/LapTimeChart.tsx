@@ -106,6 +106,78 @@ function CustomTooltip({ active, payload, label, drivers }: CustomTooltipProps) 
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
+// ─── F1 Car loader for lap times ──────────────────────────────────────────────
+function LapTimesLoader() {
+  return (
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:24, padding:"40px 0" }}>
+      {/* Track */}
+      <div style={{ position:"relative", width:"100%", maxWidth:480, height:72, overflow:"hidden" }}>
+        <div style={{ position:"absolute", bottom:8, left:0, right:0, height:1, background:"#1a1a1a" }} />
+        <div style={{ position:"absolute", bottom:14, left:0, right:0, height:1, background:"#111" }} />
+        {Array.from({length:10},(_,i)=>(
+          <div key={i} style={{ position:"absolute", bottom:11, left:`${i*11}%`, width:"6%", height:1, background:"#1e1e1e" }} />
+        ))}
+        {/* Animated car */}
+        <div style={{ position:"absolute", bottom:8, animation:"f1sweep 2s ease-in-out infinite" }}>
+          <style>{`
+            @keyframes f1sweep { 0%{left:-140px;opacity:0} 15%{opacity:1} 85%{opacity:1} 100%{left:calc(100% + 140px);opacity:0} }
+            @keyframes f1lines { 0%,100%{opacity:0;transform:scaleX(0)} 20%,80%{opacity:1;transform:scaleX(1)} }
+          `}</style>
+          <div style={{ position:"absolute", right:"100%", top:24, width:72, height:2,
+            background:"linear-gradient(90deg,transparent,#E10600)",
+            animation:"f1lines 2s ease-in-out infinite", transformOrigin:"right" }} />
+          <svg width="140" height="48" viewBox="0 0 320 100" style={{display:"block"}}>
+            <ellipse cx="160" cy="95" rx="100" ry="4" fill="rgba(0,0,0,0.2)" />
+            <rect x="18" y="28" width="36" height="5" rx="2" fill="#1a1a1a" stroke="#222" strokeWidth="0.5" />
+            <rect x="24" y="33" width="3" height="18" rx="1" fill="#1a1a1a" />
+            <rect x="33" y="33" width="3" height="18" rx="1" fill="#1a1a1a" />
+            <path d="M50 55 Q60 30 100 26 L220 26 Q260 28 275 42 L285 55 L285 70 L50 70 Z" fill="#111" stroke="#E10600" strokeWidth="1" />
+            <path d="M145 26 Q155 14 175 14 Q195 14 205 26 Z" fill="#1a1a1a" />
+            <path d="M150 24 Q162 16 178 16 Q194 16 200 24 Z" fill="#001a2a" opacity="0.8" />
+            <rect x="80" y="26" width="100" height="4" fill="#E10600" />
+            <rect x="80" y="66" width="100" height="3" fill="#E10600" />
+            <path d="M270 58 L295 56 L298 62 L270 64 Z" fill="#111" />
+            <path d="M273 58 L296 57" stroke="#E10600" strokeWidth="1.5" fill="none" />
+            <circle cx="80" cy="72" r="16" fill="#111" stroke="#222" strokeWidth="1" />
+            <circle cx="80" cy="72" r="10" fill="#0a0a0a" />
+            <circle cx="80" cy="72" r="4" fill="#E10600" />
+            <circle cx="240" cy="72" r="14" fill="#111" stroke="#222" strokeWidth="1" />
+            <circle cx="240" cy="72" r="8" fill="#0a0a0a" />
+            <circle cx="240" cy="72" r="3.5" fill="#E10600" />
+            <ellipse cx="50" cy="55" rx="5" ry="8" fill="#E10600" opacity="0.25" />
+            <ellipse cx="48" cy="55" rx="3" ry="5" fill="#ff6600" opacity="0.2" />
+          </svg>
+        </div>
+      </div>
+      {/* Lights */}
+      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", gap:10 }}>
+        <div style={{ position:"relative", width:220, height:4, background:"#111", borderRadius:2 }}>
+          {[24,68,112,156,200].map((x,i)=>(
+            <div key={i} style={{ position:"absolute", left:x, top:4, width:1, height:12, background:"#1a1a1a" }} />
+          ))}
+        </div>
+        <div style={{ display:"flex", gap:10, marginTop:-2 }}>
+          {Array.from({length:5},(_,i)=>(
+            <div key={i} style={{
+              width:24, height:24, borderRadius:"50%",
+              border:"2px solid #2a0000",
+              animation:`f1pulse 0.55s ${i*0.18}s ease-in-out infinite`,
+            }} />
+          ))}
+          <style>{`
+            @keyframes f1pulse {
+              0%,100%{background:#180000;box-shadow:none}
+              50%{background:#E10600;box-shadow:0 0 14px 5px rgba(225,6,0,0.6)}
+            }
+          `}</style>
+        </div>
+        <div style={{ fontFamily:"'Share Tech Mono',monospace", fontSize:10, color:"#444",
+          letterSpacing:"0.22em", textTransform:"uppercase" }}>Fetching Lap Data</div>
+      </div>
+    </div>
+  );
+}
+
 export default function LapTimeChart({ year, country, driverNumbers = [] }: LapTimeChartProps) {
   const [chartData, setChartData] = useState<LapEntry[]>([]);
   const [drivers, setDrivers] = useState<DriverMeta[]>([]);
@@ -201,7 +273,18 @@ export default function LapTimeChart({ year, country, driverNumbers = [] }: LapT
   const yMin = Math.floor((minT - pad) / 1_000) * 1_000;
   const yMax = Math.ceil((maxT + pad) / 1_000) * 1_000;
 
-  if (loading) return <p style={{ color: "#aaa", padding: "2rem" }}>Loading lap times…</p>;
+  if (loading) return <LapTimesLoader />;
+  if (year < 2018) return (
+    <div style={{ padding:"2rem", textAlign:"center" }}>
+      <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:18, fontWeight:700,
+        color:"#555", letterSpacing:2, textTransform:"uppercase", marginBottom:8 }}>
+        Lap data unavailable
+      </div>
+      <div style={{ fontFamily:"'Share Tech Mono',monospace", fontSize:10, color:"#333", letterSpacing:1 }}>
+        OpenF1 lap timing data starts from the 2018 season
+      </div>
+    </div>
+  );
   if (error)   return <p style={{ color: "#E10600", padding: "2rem" }}>{error}</p>;
 
   return (

@@ -147,6 +147,17 @@ export default function TireStrategyChart({ year, country }: TireStrategyChartPr
     return () => { cancelled = true; };
   }, [year, country]);
 
+  if (year < 2018) return (
+    <div style={{ padding:"1.5rem", textAlign:"center" }}>
+      <div style={{ fontFamily:"'Barlow Condensed',sans-serif", fontSize:16, fontWeight:700,
+        color:"#555", letterSpacing:2, textTransform:"uppercase", marginBottom:6 }}>
+        Tire data unavailable
+      </div>
+      <div style={{ fontFamily:"'Share Tech Mono',monospace", fontSize:10, color:"#333", letterSpacing:1 }}>
+        Stint data is available from 2018 onwards via OpenF1
+      </div>
+    </div>
+  );
   if (loading) return <p style={{ color: "#aaa", padding: "1rem" }}>Loading tire strategy…</p>;
   if (error)   return <p style={{ color: "#E10600", padding: "1rem" }}>{error}</p>;
   if (!rows.length) return <p style={{ color: "#aaa", padding: "1rem" }}>No strategy data found.</p>;

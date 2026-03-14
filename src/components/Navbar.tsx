@@ -5,7 +5,8 @@ const NAV_ITEMS = [
   { to: "/",           label: "Live" },
   { to: "/dashboard",  label: "Dashboard" },
   { to: "/telemetry",  label: "Telemetry" },
-  { to: "/results",    label: "Results" },
+  { to: "/standings",  label: "Standings" },
+  // { to: "/results",    label: "Results" },
   { to: "/champions",  label: "Champions" },
   { to: "/predict",    label: "Predict" },
 ];

@@ -32,14 +32,14 @@ const PTS = [25,18,15,12,10,8,6,4,2,1,0,0,0,0,0,0,0,0,0,0];
 
 async function fetchStandings() {
   // Use Jolpica (Ergast replacement) for current standings
-  const res = await fetch("https://api.jolpi.ca/ergast/f1/2024/driverStandings.json");
+  const res = await fetch("https://api.jolpi.ca/ergast/f1/2025/driverStandings.json");
   if (!res.ok) throw new Error("Standings fetch failed");
   const data = await res.json();
   return data.MRData.StandingsTable.StandingsLists[0].DriverStandings as any[];
 }
 
 async function fetchRecentResults(driverId: string) {
-  const res = await fetch(`https://api.jolpi.ca/ergast/f1/2024/drivers/${driverId}/results.json?limit=5&offset=15`);
+  const res = await fetch(`https://api.jolpi.ca/ergast/f1/2025/drivers/${driverId}/results.json?limit=5&offset=15`);
   if (!res.ok) return [5,5,5,5,5];
   const data = await res.json();
   const races = data.MRData.RaceTable.Races;
@@ -121,7 +121,7 @@ export default function PredictPage() {
         </h1>
         <div style={{height:2, background:"#E10600", width:60, marginBottom:8}} />
         <p style={{fontFamily:"'Share Tech Mono',monospace", fontSize:10, color:"#444", letterSpacing:2, textTransform:"uppercase", marginBottom:24}}>
-          Based on 2024 standings · Projected win probability
+          Based on 2025 final standings · Projected win probability
         </p>
       </motion.div>
 
